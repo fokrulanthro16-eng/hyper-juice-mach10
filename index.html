@@ -175,6 +175,103 @@
       background: rgba(35, 15, 8, 0.7);
     }
 
+    /* Live Navigation Hubs */
+    .live-nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 15px;
+      margin-bottom: 25px;
+    }
+
+    .nav-hub-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-family: var(--font-code);
+      font-size: 12px;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      background: rgba(14, 22, 34, 0.90);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      color: #e2e8f0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .nav-hub-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px var(--cyan-glow);
+      border-color: var(--cyan);
+      color: #fff;
+    }
+
+    .nav-hub-btn.vercel { border-color: rgba(255, 255, 255, 0.4); }
+    .nav-hub-btn.vercel:hover { border-color: #fff; box-shadow: 0 4px 15px rgba(255,255,255,0.4); }
+
+    .nav-hub-btn.gh-pages { border-color: rgba(0, 240, 255, 0.4); }
+    .nav-hub-btn.gh-pages:hover { border-color: var(--cyan); box-shadow: 0 4px 15px var(--cyan-glow); }
+
+    .nav-hub-btn.youtube { border-color: rgba(255, 0, 60, 0.4); }
+    .nav-hub-btn.youtube:hover { border-color: var(--red-alert); box-shadow: 0 4px 15px var(--red-glow); }
+
+    .nav-hub-btn.github { border-color: rgba(255, 85, 0, 0.4); }
+    .nav-hub-btn.github:hover { border-color: var(--orange); box-shadow: 0 4px 15px var(--orange-glow); }
+
+    .hub-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #00ff66;
+      box-shadow: 0 0 6px #00ff66;
+    }
+
+    .hub-dot.red {
+      background: #ff003c;
+      box-shadow: 0 0 6px #ff003c;
+    }
+
+    .hub-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .hub-val {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .footer-links-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .footer-link-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-family: var(--font-code);
+      font-size: 12px;
+      text-decoration: none;
+      background: rgba(14, 22, 34, 0.7);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: var(--cyan);
+      transition: all 0.2s ease;
+    }
+
+    .footer-link-pill:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyan);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
     /* Video Theater Section */
     .video-showcase {
       margin-bottom: 50px;
@@ -1253,6 +1350,30 @@
       <span class="meta-badge">🎵 48kHz Stereo Synthesized Audio</span>
       <span class="meta-badge">📐 100% Native bpy Code</span>
     </div>
+
+    <!-- PRODUCTION LIVE HUBS NAV -->
+    <nav class="live-nav-bar">
+      <a href="https://hyper-juice-mach10.vercel.app/" target="_blank" rel="noopener" class="nav-hub-btn vercel">
+        <span class="hub-dot"></span>
+        <span class="hub-label">🚀 Vercel Live:</span>
+        <span class="hub-val">hyper-juice-mach10.vercel.app</span>
+      </a>
+      <a href="https://fokrulanthro16-eng.github.io/hyper-juice-mach10/" target="_blank" rel="noopener" class="nav-hub-btn gh-pages">
+        <span class="hub-dot"></span>
+        <span class="hub-label">🐙 GitHub Pages:</span>
+        <span class="hub-val">fokrulanthro16-eng.github.io</span>
+      </a>
+      <a href="https://youtu.be/1DEDpgj7cbs" target="_blank" rel="noopener" class="nav-hub-btn youtube">
+        <span class="hub-dot red"></span>
+        <span class="hub-label">📺 YouTube 8K:</span>
+        <span class="hub-val">youtu.be/1DEDpgj7cbs</span>
+      </a>
+      <a href="https://github.com/fokrulanthro16-eng/hyper-juice-mach10" target="_blank" rel="noopener" class="nav-hub-btn github">
+        <span class="hub-dot"></span>
+        <span class="hub-label">💻 GitHub Repo:</span>
+        <span class="hub-val">hyper-juice-mach10</span>
+      </a>
+    </nav>
   </header>
 
   <!-- VIDEO SHOWCASE THEATER -->
@@ -1853,6 +1974,20 @@
 
   <!-- FOOTER -->
   <footer>
+    <div class="footer-links-grid">
+      <a href="https://hyper-juice-mach10.vercel.app/" target="_blank" rel="noopener" class="footer-link-pill">
+        <span>🚀 Vercel Production Showcase</span>
+      </a>
+      <a href="https://fokrulanthro16-eng.github.io/hyper-juice-mach10/" target="_blank" rel="noopener" class="footer-link-pill">
+        <span>🐙 GitHub Pages Live</span>
+      </a>
+      <a href="https://youtu.be/1DEDpgj7cbs" target="_blank" rel="noopener" class="footer-link-pill">
+        <span>📺 YouTube 8K UHD Walkthrough</span>
+      </a>
+      <a href="https://github.com/fokrulanthro16-eng/hyper-juice-mach10" target="_blank" rel="noopener" class="footer-link-pill">
+        <span>💻 GitHub Source Repository</span>
+      </a>
+    </div>
     <p>HYPER-JUICE: Mach-10 Render Pipeline &copy; 2026 Contest Submission | Built for RenderJuice Blender Animation & Programmatic Rendering Contest</p>
     <p style="margin-top: 6px; color: #586982;">Master files: <code>generate_speed_animation.py</code> | <code>generate_procedural_audio.py</code> | <code>hyper_juice_wip.blend</code> | <code>hyper_juice_speed_render.mp4</code></p>
   </footer>

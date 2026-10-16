@@ -16,9 +16,10 @@
 
 <br/>
 
-[![Watch 8K Technical Walkthrough Video](https://img.shields.io/badge/YouTube-Watch%208K%20UHD%20Walkthrough-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/1DEDpgj7cbs)
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Showcase-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://hyper-juice-mach10.vercel.app/)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Showcase-222222?style=for-the-badge&logo=githubpages&logoColor=white)](https://fokrulanthro16-eng.github.io/hyper-juice-mach10/)
+[![Watch 8K Technical Walkthrough Video](https://img.shields.io/badge/YouTube-Watch%208K%20UHD%20Walkthrough-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/1DEDpgj7cbs)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository%20Code-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/fokrulanthro16-eng/hyper-juice-mach10)
 
 </div>
 
@@ -49,6 +50,7 @@ Judges and reviewers can experience the full interactive 3D WebGL cyber tunnel, 
 | **🚀 Vercel Production** | **[`https://hyper-juice-mach10.vercel.app/`](https://hyper-juice-mach10.vercel.app/)** | `🟢 200 OK` | Global Anycast Edge CDN • Optimized HTTP/3 Range Streaming • Zero Cold Start |
 | **🐙 GitHub Pages** | **[`https://fokrulanthro16-eng.github.io/hyper-juice-mach10/`](https://fokrulanthro16-eng.github.io/hyper-juice-mach10/)** | `🟢 200 OK` | Fastly Edge CDN • Automated Branch Mirroring (`main` branch) |
 | **📺 YouTube 8K Walkthrough** | **[`https://youtu.be/1DEDpgj7cbs`](https://youtu.be/1DEDpgj7cbs)** | `🟢 200 OK` | Broadcast 8K UHD (7680x4320 @ 60s) with Neural Narrator Voiceover |
+| **💻 GitHub Source Repository** | **[`https://github.com/fokrulanthro16-eng/hyper-juice-mach10`](https://github.com/fokrulanthro16-eng/hyper-juice-mach10)** | `🟢 200 OK` | Full Source Code, Procedural Generator Scripts, 4K Proofs, and `.blend` Scene |
 
 ---
 
