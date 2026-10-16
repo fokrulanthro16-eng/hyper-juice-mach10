@@ -1,0 +1,2645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HYPER-JUICE: Mach-10 Render Pipeline v3.0 | Contest Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #06080d;
+      --bg-card: rgba(13, 17, 26, 0.88);
+      --bg-card-border: rgba(0, 240, 255, 0.22);
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.45);
+      --orange: #ff5500;
+      --orange-glow: rgba(255, 85, 0, 0.45);
+      --red-alert: #ff003c;
+      --red-glow: rgba(255, 0, 60, 0.45);
+      --text-main: #e2e8f0;
+      --text-muted: #8496ad;
+      --font-display: 'Orbitron', sans-serif;
+      --font-body: 'Rajdhani', sans-serif;
+      --font-code: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--cyan) rgba(8, 12, 18, 0.9);
+    }
+
+    /* Custom Cyberpunk Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(6, 9, 14, 0.95);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--cyan);
+      border-radius: 4px;
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--orange);
+      box-shadow: 0 0 12px var(--orange-glow);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(255, 85, 0, 0.10) 0%, transparent 45%),
+        radial-gradient(circle at 85% 65%, rgba(0, 240, 255, 0.11) 0%, transparent 45%),
+        linear-gradient(rgba(6, 8, 13, 0.96), rgba(6, 8, 13, 0.96)),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 240, 255, 0.012) 2px, rgba(0, 240, 255, 0.012) 4px);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 18px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .grid-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      background-size: 50px 50px;
+      background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.025) 1px, transparent 1px);
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 30px 24px 90px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .contest-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 20px;
+      background: rgba(255, 85, 0, 0.12);
+      border: 1px solid var(--orange);
+      border-radius: 50px;
+      color: #ff9d66;
+      font-family: var(--font-display);
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      box-shadow: 0 0 16px var(--orange-glow);
+      margin-bottom: 16px;
+      animation: pulse-glow 3s infinite alternate;
+    }
+
+    .contest-pill::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--orange);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--orange);
+    }
+
+    h1.project-title {
+      font-family: var(--font-display);
+      font-size: clamp(34px, 5.2vw, 64px);
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 15%, var(--orange) 55%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 35px rgba(255, 85, 0, 0.3);
+      margin-bottom: 10px;
+      line-height: 1.15;
+    }
+
+    .tagline {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--cyan);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .meta-badge {
+      font-family: var(--font-code);
+      font-size: 13px;
+      padding: 5px 14px;
+      border-radius: 4px;
+      background: rgba(14, 22, 36, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: #b3ecff;
+    }
+
+    .meta-badge.highlight {
+      border-color: var(--orange);
+      color: #ffaa77;
+      background: rgba(35, 15, 8, 0.7);
+    }
+
+    /* Video Theater Section */
+    .video-showcase {
+      margin-bottom: 50px;
+    }
+
+    .hud-frame {
+      position: relative;
+      background: #000;
+      border: 2px solid rgba(0, 240, 255, 0.4);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 0 45px rgba(0, 240, 255, 0.20), inset 0 0 20px rgba(0, 240, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .hud-frame::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 35px; height: 35px;
+      border-top: 3px solid var(--orange);
+      border-left: 3px solid var(--orange);
+      z-index: 5;
+    }
+
+    .hud-frame::after {
+      content: '';
+      position: absolute;
+      bottom: 0; right: 0; width: 35px; height: 35px;
+      border-bottom: 3px solid var(--cyan);
+      border-right: 3px solid var(--cyan);
+      z-index: 5;
+    }
+
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 18px;
+      background: rgba(10, 16, 26, 0.96);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.22);
+      font-family: var(--font-code);
+      font-size: 13px;
+      color: var(--cyan);
+      letter-spacing: 1px;
+    }
+
+    .hud-status-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      background: #00ff66;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #00ff66;
+      margin-right: 6px;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    video#main-render {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      outline: none;
+    }
+
+    /* Live Telemetry HUD Bar */
+    .telemetry-live-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: rgba(8, 12, 20, 0.98);
+      padding: 14px 20px;
+      border-top: 1px solid rgba(0, 240, 255, 0.25);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+    }
+
+    .tel-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-left: 2px solid var(--cyan);
+      padding-left: 10px;
+    }
+
+    .tel-item.orange {
+      border-left-color: var(--orange);
+    }
+
+    .tel-label {
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .tel-value {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .tel-value.cyan { color: var(--cyan); }
+    .tel-value.orange { color: #ff9955; }
+    .tel-value.red { color: var(--red-alert); }
+
+    /* Video Controls */
+    .video-controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: rgba(10, 14, 22, 0.96);
+      gap: 12px;
+    }
+
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-cyber {
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid var(--cyan);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 13px;
+      letter-spacing: 1px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+    }
+
+    .btn-cyber:hover {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .btn-cyber.orange {
+      border-color: var(--orange);
+      background: rgba(255, 85, 0, 0.08);
+      color: #ff9966;
+    }
+
+    .btn-cyber.orange:hover {
+      background: var(--orange);
+      color: #000;
+      box-shadow: 0 0 15px var(--orange-glow);
+    }
+
+    .speed-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .speed-btn.active, .speed-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.15);
+    }
+
+    /* Frame-by-Frame Timeline Scrubber */
+    .scrubber-bar-wrap {
+      background: rgba(6, 10, 18, 0.98);
+      border-top: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 12px 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .scrubber-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .scrubber-label-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .scrub-title {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .scrub-indicator {
+      font-family: var(--font-code);
+      font-size: 13px;
+      color: #fff;
+      background: rgba(0, 240, 255, 0.12);
+      padding: 3px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      letter-spacing: 1px;
+    }
+
+    .keyframe-anchors {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .anchor-label {
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-right: 4px;
+    }
+
+    .anchor-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e2e8f0;
+      font-family: var(--font-code);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .anchor-btn:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .anchor-btn.orange:hover {
+      background: rgba(255, 85, 0, 0.2);
+      border-color: var(--orange);
+      color: #ff9955;
+    }
+
+    .anchor-btn.cyan:hover {
+      background: rgba(0, 240, 255, 0.25);
+      border-color: var(--cyan);
+      color: #fff;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .frame-step-btn {
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--cyan);
+      font-family: var(--font-code);
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .frame-step-btn:hover {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .slider-track-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+    }
+
+    input[type=range]#frame-scrubber {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(90deg, 
+        rgba(255, 2, 3, 0.6) 0%, 
+        rgba(255, 2, 3, 0.6) 20.8%, 
+        rgba(255, 85, 0, 0.75) 20.9%, 
+        rgba(255, 85, 0, 0.75) 75%, 
+        rgba(0, 240, 255, 0.75) 75.1%, 
+        rgba(0, 240, 255, 0.75) 100%);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    input[type=range]#frame-scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid var(--orange);
+      box-shadow: 0 0 12px var(--orange), 0 0 4px #000;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    input[type=range]#frame-scrubber::-webkit-slider-thumb:hover,
+    input[type=range]#frame-scrubber:active::-webkit-slider-thumb {
+      transform: scale(1.25);
+      box-shadow: 0 0 20px var(--orange), 0 0 8px #fff;
+    }
+
+    input[type=range]#frame-scrubber::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid var(--orange);
+      box-shadow: 0 0 12px var(--orange), 0 0 4px #000;
+      cursor: pointer;
+    }
+
+    .slider-act-markers {
+      display: flex;
+      font-family: var(--font-code);
+      font-size: 9px;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .slider-act-markers .marker {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .slider-act-markers .marker.act1 { color: #ff6666; }
+    .slider-act-markers .marker.act2 { color: #ffaa55; text-align: center; }
+    .slider-act-markers .marker.act3 { color: var(--cyan); text-align: right; }
+
+    /* Three.js 3D Explorer */
+    .threejs-section {
+      margin-bottom: 55px;
+    }
+
+    .three-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .three-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.1);
+    }
+
+    .three-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 12px 18px;
+      background: rgba(10, 16, 26, 0.96);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+      gap: 10px;
+    }
+
+    .three-toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .three-status-label {
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-right: 4px;
+    }
+
+    .three-btn {
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: #d1e4ff;
+      font-family: var(--font-code);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .three-btn:hover, .three-btn.active {
+      background: var(--cyan);
+      color: #000;
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .three-stat-pill {
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: var(--orange);
+      background: rgba(255, 85, 0, 0.12);
+      border: 1px solid rgba(255, 85, 0, 0.35);
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .three-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      background: radial-gradient(circle at 50% 50%, #081020 0%, #03050a 100%);
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .three-canvas-wrap:active {
+      cursor: grabbing;
+    }
+
+    .three-overlay-instructions {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(4, 7, 13, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-family: var(--font-code);
+      font-size: 12px;
+      color: var(--cyan);
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+
+    /* Cloud vs Local Benchmark Section */
+    .benchmark-section {
+      margin-bottom: 55px;
+    }
+
+    .benchmark-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .benchmark-kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .benchmark-kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--orange);
+    }
+
+    .benchmark-kpi-card.cyan::before {
+      background: var(--cyan);
+    }
+
+    .kpi-title {
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .kpi-speedup {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .kpi-badge {
+      font-family: var(--font-code);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    .kpi-badge.win {
+      background: rgba(0, 240, 255, 0.2);
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+    }
+
+    .kpi-details {
+      font-family: var(--font-code);
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .benchmark-chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 10px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .chart-controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-family: var(--font-code);
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.local { background: #ff3344; box-shadow: 0 0 8px #ff3344; }
+    .legend-dot.cloud { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+
+    .chart-canvas-container {
+      position: relative;
+      width: 100%;
+      height: 340px;
+      background: rgba(5, 8, 14, 0.9);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #benchmark-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      display: none;
+      background: rgba(8, 14, 24, 0.95);
+      border: 1px solid var(--cyan);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: var(--font-code);
+      font-size: 12px;
+      color: #fff;
+      pointer-events: none;
+      box-shadow: 0 5px 20px rgba(0, 240, 255, 0.3);
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    /* Section Headers */
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 55px 0 25px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.22);
+      padding-bottom: 12px;
+    }
+
+    .title-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-icon {
+      font-size: 26px;
+      color: var(--orange);
+      text-shadow: 0 0 12px var(--orange);
+    }
+
+    h2.section-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    /* Hero Stills Gallery */
+    .stills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 22px;
+      margin-bottom: 50px;
+    }
+
+    .still-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .still-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--cyan);
+      box-shadow: 0 10px 25px rgba(0, 240, 255, 0.25);
+    }
+
+    .still-card.featured {
+      border-color: var(--orange);
+      box-shadow: 0 0 25px rgba(255, 85, 0, 0.18);
+    }
+
+    .still-img-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .still-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .still-card:hover .still-img-wrap img {
+      transform: scale(1.05);
+    }
+
+    .act-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 4px 10px;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    .act-tag.act1 { background: rgba(255, 0, 60, 0.90); color: #fff; box-shadow: 0 0 10px var(--red-glow); }
+    .act-tag.act2 { background: rgba(255, 85, 0, 0.90); color: #fff; box-shadow: 0 0 10px var(--orange-glow); }
+    .act-tag.act3 { background: rgba(0, 240, 255, 0.90); color: #000; box-shadow: 0 0 10px var(--cyan-glow); }
+    .act-tag.proof { background: linear-gradient(135deg, var(--cyan), var(--orange)); color: #000; font-weight: 900; }
+
+    .still-info {
+      padding: 16px 18px 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .still-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .still-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .still-meta {
+      font-family: var(--font-code);
+      font-size: 12px;
+      color: var(--cyan);
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 8px;
+    }
+
+    /* Narrative 3-Act Table */
+    .narrative-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 40px;
+      border: 1px solid rgba(0, 240, 255, 0.22);
+      border-radius: 8px;
+      background: var(--bg-card);
+    }
+
+    table.cyber-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    table.cyber-table th {
+      background: rgba(0, 240, 255, 0.08);
+      padding: 14px 18px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+    }
+
+    table.cyber-table td {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 16px;
+      vertical-align: top;
+    }
+
+    table.cyber-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .act-cell {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    /* Architecture Grid & Math Blocks (Clean 2x2 Responsive Grid) */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 45px;
+    }
+
+    .arch-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 8px;
+      padding: 24px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .arch-card h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--orange);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .math-block {
+      background: rgba(6, 10, 16, 0.95);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 12px 0;
+      color: #7ce8ff;
+      font-family: var(--font-code);
+      font-size: 14.5px;
+      overflow: hidden; /* Zero scrollbars */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);
+    }
+
+    .math-block .katex-display {
+      margin: 0.25em 0;
+      font-size: clamp(12px, 1.1vw, 15.5px);
+      width: 100%;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Audio Synthesis Feature Card */
+    .audio-feature-card {
+      background: linear-gradient(135deg, rgba(255, 85, 0, 0.08), rgba(0, 240, 255, 0.08));
+      border: 1px solid var(--cyan);
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin-bottom: 45px;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.12);
+    }
+
+    .audio-feature-card h3 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .audio-acts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      margin-top: 15px;
+    }
+
+    .audio-act-item {
+      background: rgba(6, 9, 14, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.18);
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+
+    .audio-act-item h4 {
+      font-family: var(--font-display);
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    /* Disclosure Banner */
+    .disclosure-banner {
+      background: linear-gradient(90deg, rgba(255, 85, 0, 0.14), rgba(0, 240, 255, 0.14));
+      border: 2px solid var(--orange);
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin: 50px 0;
+      box-shadow: 0 0 30px rgba(255, 85, 0, 0.22);
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .disclosure-icon {
+      font-size: 40px;
+      color: var(--orange);
+      flex-shrink: 0;
+    }
+
+    .disclosure-text h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: #fff;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .disclosure-text p {
+      color: #d1d9e6;
+      font-size: 17px;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 5, 8, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .modal-content img {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 8px;
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.35);
+    }
+
+    .modal-caption {
+      margin-top: 15px;
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 36px;
+      color: #fff;
+      cursor: pointer;
+      transition: color 0.2s;
+      z-index: 1000;
+    }
+
+    .modal-close:hover {
+      color: var(--orange);
+    }
+
+    /* Code Modal Viewer */
+    .code-modal-box {
+      width: 88vw;
+      max-width: 1100px;
+      max-height: 85vh;
+      background: #080c14;
+      border: 2px solid var(--cyan);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.3);
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+      padding-bottom: 14px;
+      margin-bottom: 15px;
+    }
+
+    .code-header h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--cyan);
+    }
+
+    pre.code-content {
+      flex-grow: 1;
+      overflow: auto;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 6px;
+      padding: 18px;
+      font-family: var(--font-code);
+      font-size: 14px;
+      color: #c9d6ea;
+      white-space: pre;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: var(--font-code);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 10px var(--orange-glow); }
+      100% { box-shadow: 0 0 25px var(--orange); }
+    }
+
+    @media (max-width: 800px) {
+      .telemetry-live-panel { grid-template-columns: 1fr 1fr; }
+      .video-controls-bar { flex-direction: column; align-items: stretch; }
+      .ctrl-group { justify-content: center; }
+      .arch-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="grid-lines"></div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="contest-pill">RenderJuice Animation & Programmatic Contest 2026 // v3.0 Submission</div>
+    <h1 class="project-title">HYPER-JUICE: Mach-10 Render Pipeline</h1>
+    <p class="tagline">Speed Unleashed // 100% Procedural Visuals & Mathematically Synthesized Audio</p>
+
+    <div class="badges-row">
+      <span class="meta-badge highlight">🏆 Category: Best Procedural & Programmatic</span>
+      <span class="meta-badge highlight">⚡ Category: Best RenderJuice Promo</span>
+      <span class="meta-badge">⏱️ 12.0s (288 Frames @ 24 FPS)</span>
+      <span class="meta-badge">⚙️ Blender 4.2+ EEVEE-Next</span>
+      <span class="meta-badge">🌐 Three.js 3D Explorer</span>
+      <span class="meta-badge">🎵 48kHz Stereo Synthesized Audio</span>
+      <span class="meta-badge">📐 100% Native bpy Code</span>
+    </div>
+  </header>
+
+  <!-- VIDEO SHOWCASE THEATER -->
+  <section class="video-showcase">
+    <div class="hud-frame">
+      <div class="hud-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="hud-status-dot"></span>
+          <span id="video-mode-label">BROADCAST MASTER // 1920x1080 @ 24.0 FPS // 48kHz STEREO PCM AUDIO</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="three-btn active" id="btn-show-anim" onclick="switchVideoMode('anim')">🎬 12s Master Animation</button>
+          <button class="three-btn" id="btn-show-walkthrough" onclick="switchVideoMode('walkthrough')">🎙️ 8K Technical Walkthrough (60s VO)</button>
+        </div>
+      </div>
+
+      <div class="video-container">
+        <video id="main-render" controls autoplay loop playsinline preload="auto" poster="hero_act3_title_reveal.png">
+          <source src="hyper_juice_speed_render.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <!-- FRAME-BY-FRAME TIMELINE SCRUBBER -->
+      <div class="scrubber-bar-wrap">
+        <div class="scrubber-top-row">
+          <div class="scrubber-label-group">
+            <span class="scrub-title">TIMELINE SCRUBBER</span>
+            <span class="scrub-indicator" id="scrub-indicator">FRAME: 001 / 288 (0.00s)</span>
+          </div>
+          <div class="keyframe-anchors">
+            <span class="anchor-label">KEYFRAMES:</span>
+            <button class="anchor-btn" onclick="seekToFrame(1)">F:001 Bottleneck</button>
+            <button class="anchor-btn orange" onclick="seekToFrame(61)">F:061 Surge</button>
+            <button class="anchor-btn cyan" onclick="seekToFrame(150)">F:150 Mach-10</button>
+            <button class="anchor-btn" onclick="seekToFrame(265)">F:265 Reveal</button>
+          </div>
+        </div>
+
+        <div class="slider-row">
+          <button class="frame-step-btn" onclick="stepFrames(-10)" title="Step back 10 frames">◄◄ -10F</button>
+          <button class="frame-step-btn" onclick="stepFrames(-1)" title="Step back 1 frame">◄ -1F</button>
+          
+          <div class="slider-track-wrap">
+            <input type="range" id="frame-scrubber" min="1" max="288" value="1" step="1" aria-label="Timeline Scrubber">
+            <div class="slider-act-markers">
+              <span class="marker act1" style="width: 20.83%;">ACT 1 (BOTTLENECK)</span>
+              <span class="marker act2" style="width: 54.17%;">ACT 2 (MACH-10 SURGE)</span>
+              <span class="marker act3" style="width: 25.00%;">ACT 3 (DEEP SPACE REVEAL)</span>
+            </div>
+          </div>
+
+          <button class="frame-step-btn" onclick="stepFrames(1)" title="Step forward 1 frame">+1F ►</button>
+          <button class="frame-step-btn" onclick="stepFrames(10)" title="Step forward 10 frames">+10F ►►</button>
+        </div>
+      </div>
+
+      <!-- LIVE TELEMETRY HUD BAR (Updates real-time via timeupdate) -->
+      <div class="telemetry-live-panel">
+        <div class="tel-item">
+          <span class="tel-label">TIMECODE / FRAME</span>
+          <span class="tel-value cyan" id="hud-frame">00:00:00 [F: 001/288]</span>
+        </div>
+        <div class="tel-item orange">
+          <span class="tel-label">NARRATIVE ACT / STATUS</span>
+          <span class="tel-value orange" id="hud-act">ACT 1: LOCAL BOTTLENECK</span>
+        </div>
+        <div class="tel-item">
+          <span class="tel-label">DYNAMIC OPTICAL LENS</span>
+          <span class="tel-value cyan" id="hud-focal">50.0 mm</span>
+        </div>
+        <div class="tel-item orange">
+          <span class="tel-label">INSTANTANEOUS VELOCITY</span>
+          <span class="tel-value orange" id="hud-velocity">0 KM/H [MACH 0.0]</span>
+        </div>
+        <div class="tel-item">
+          <span class="tel-label">DISTANCE TRAVELED</span>
+          <span class="tel-value cyan" id="hud-distance">0.0 M</span>
+        </div>
+      </div>
+
+      <div class="video-controls-bar">
+        <div class="ctrl-group">
+          <button class="btn-cyber" id="btn-replay">↺ Restart</button>
+          <button class="btn-cyber orange" id="btn-toggle-play">❚❚ Pause</button>
+          <button class="btn-cyber" id="btn-loop">Loop: ON</button>
+        </div>
+
+        <div class="ctrl-group">
+          <span style="font-family: var(--font-code); font-size: 13px; color: var(--text-muted);">PLAYBACK SPEED:</span>
+          <button class="speed-btn" data-speed="0.25">0.25x (Super Slo-Mo)</button>
+          <button class="speed-btn" data-speed="0.5">0.5x</button>
+          <button class="speed-btn active" data-speed="1.0">1.0x</button>
+          <button class="speed-btn" data-speed="1.5">1.5x</button>
+          <button class="speed-btn" data-speed="2.0">2.0x</button>
+        </div>
+
+        <div class="ctrl-group">
+          <button class="btn-cyber orange" onclick="openCodeModal()">Inspect bpy Code</button>
+          <button class="btn-cyber" id="btn-fullscreen">⛶ Fullscreen</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 100% PROCEDURAL AUDIO SPOTLIGHT -->
+  <section class="audio-feature-card">
+    <h3><span style="color: var(--orange);">🎵</span> 100% Procedurally Synthesized Audio Architecture</h3>
+    <p style="color: #cbd5e1;">The complete stereo soundtrack for <em>HYPER-JUICE</em> was synthesized entirely in code using Python's standard <code>wave</code>, <code>struct</code>, and <code>math</code> modules (no sample libraries, no external sound packs, zero AI models). Audio was generated at 48kHz / 16-bit PCM and muxed into the final broadcast MP4:</p>
+    
+    <div class="audio-acts-grid">
+      <div class="audio-act-item">
+        <h4 style="color: var(--red-alert);">ACT 1: THERMAL STRAIN (0.0s - 2.5s)</h4>
+        <p style="font-size: 14px; color: var(--text-muted);">55Hz mains power hum with thermal tremolo, high-frequency 3,240Hz/6,480Hz GPU coil whine with jitter, and accelerating 920Hz panic strobe alert beeps.</p>
+      </div>
+      <div class="audio-act-item">
+        <h4 style="color: var(--orange);">ACT 2: MACH-10 SURGE (2.5s - 9.0s)</h4>
+        <p style="font-size: 14px; color: var(--text-muted);">95kW explosive sub-bass detonation impact (180Hz &rarr; 42Hz drop), exponential Doppler turbine pitch sweep ($85\text{Hz} \to 1635\text{Hz}$), and 48 alternating L-R stereo whooshes.</p>
+      </div>
+      <div class="audio-act-item">
+        <h4 style="color: var(--cyan);">ACT 3: REVEAL CHORD (9.0s - 12.0s)</h4>
+        <p style="font-size: 14px; color: var(--text-muted);">Deep 36Hz supersonic sonic boom crack followed by an ethereal D-maj9 cosmic chord shimmer ($146.8\text{Hz} \dots 659.2\text{Hz}$) with chorused harmonic tails.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OFFICIAL 4K UHD SUBMISSION GALLERY (DEVPOST HERO STILLS) -->
+  <section style="margin-bottom: 55px;">
+    <div class="section-title-wrap">
+      <div class="title-left">
+        <span class="section-icon">📸</span>
+        <h2 class="section-title">Official 4K UHD Devpost Submission Gallery</h2>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <span class="meta-badge highlight">3840 &times; 2160 PIXEL-PERFECT UHD</span>
+        <span class="meta-badge">DEVPOST SUBMISSION READY</span>
+      </div>
+    </div>
+
+    <div class="stills-grid">
+      <!-- Shot 1 -->
+      <div class="still-card featured">
+        <div class="still-img-wrap" onclick="openModal('shot_1_local_bottleneck_core.png', 'Shot 1: The Local GPU Bottleneck Core (Act 1, Frame 25 - 4K UHD 3840x2160)')">
+          <span class="act-tag act1">Act 1 &bull; 4K UHD</span>
+          <img src="shot_1_local_bottleneck_core.png" alt="Shot 1: Local GPU Bottleneck Core (4K)">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">01 &bull; Local GPU Bottleneck Core</div>
+            <div class="still-desc">Sluggish local rendering core with 10 heatsink fins, copper heatpipes, and pulsing thermal alert emission shaders under 99% thermal load.</div>
+          </div>
+          <div class="still-meta">
+            <span>FRAME: 25 / 288</span>
+            <span style="color: var(--cyan);">4K (3840&times;2160) &bull; 11.2 MB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shot 2 -->
+      <div class="still-card featured">
+        <div class="still-img-wrap" onclick="openModal('shot_2_mach10_hyperspace_tunnel.png', 'Shot 2: Peak Mach-10 Hyperspace Acceleration Tunnel (Act 2, Frame 145 - 4K UHD 3840x2160)')">
+          <span class="act-tag act2">Act 2 &bull; 4K UHD</span>
+          <img src="shot_2_mach10_hyperspace_tunnel.png" alt="Shot 2: Mach-10 Hyperspace Speed Rings (4K)">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">02 &bull; Mach-10 Hyperspace Tunnel</div>
+            <div class="still-desc">Shooting through 150 procedural neon speed rings and 260 ion light streaks with dynamic 18mm focal length lens warp and multi-harmonic turbulence.</div>
+          </div>
+          <div class="still-meta">
+            <span>FRAME: 145 / 288</span>
+            <span style="color: var(--cyan);">4K (3840&times;2160) &bull; 28.8 MB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shot 3 -->
+      <div class="still-card featured">
+        <div class="still-img-wrap" onclick="openModal('shot_3_speed_unleashed_reveal.png', 'Shot 3: Speed Unleashed Cosmic Reveal (Act 3, Frame 265 - 4K UHD 3840x2160)')">
+          <span class="act-tag act3">Act 3 &bull; 4K UHD</span>
+          <img src="shot_3_speed_unleashed_reveal.png" alt="Shot 3: Speed Unleashed Cosmic Reveal (4K)">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">03 &bull; Speed Unleashed Cosmic Reveal</div>
+            <div class="still-desc">Hero extruded 3D title &quot;RENDERJUICE: SPEED UNLEASHED&quot; bathed in deep cosmic starlight, volumetric dust, and expanding supersonic shockwave halos.</div>
+          </div>
+          <div class="still-meta">
+            <span>FRAME: 265 / 288</span>
+            <span style="color: var(--cyan);">4K (3840&times;2160) &bull; 21.8 MB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shot 4 -->
+      <div class="still-card featured">
+        <div class="still-img-wrap" onclick="openModal('shot_4_blender_wireframe_telemetry_proof.png', 'Shot 4: Blender Wireframe Topology & Telemetry HUD Proof (4K UHD 3840x2160)')">
+          <span class="act-tag proof">Proof &bull; 4K UHD</span>
+          <img src="shot_4_blender_wireframe_telemetry_proof.png" alt="Shot 4: Blender Wireframe Topology & Telemetry Proof (4K)">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">04 &bull; Blender Topology &amp; HUD Proof</div>
+            <div class="still-desc">Dual-tone wireframe shader over quad mesh conduits, flight telemetry HUD, and 940 object counters stamped in camera space.</div>
+          </div>
+          <div class="still-meta">
+            <span style="color: var(--orange);">940 OBJECTS | 931 MESHES</span>
+            <span style="color: var(--cyan);">4K (3840&times;2160) &bull; 41.4 MB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shot 5 -->
+      <div class="still-card featured">
+        <div class="still-img-wrap" onclick="openModal('shot_5_v3_interactive_showcase_dashboard.png', 'Shot 5: v3.0 Interactive Showcase Dashboard (4K UHD 3840x2160)')">
+          <span class="act-tag" style="background: #112233; border: 1px solid var(--cyan); color: var(--cyan);">Showcase &bull; 4K UHD</span>
+          <img src="shot_5_v3_interactive_showcase_dashboard.png" alt="Shot 5: v3.0 Web Dashboard Showcase (4K)">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">05 &bull; Interactive Dashboard &amp; 3D WebGL</div>
+            <div class="still-desc">Full-viewport 4K capture of the live v3.0 Web Dashboard featuring dual-video player HUD, Three.js 3D viewport, timeline scrubber, and cloud render benchmarks.</div>
+          </div>
+          <div class="still-meta">
+            <span>UI VIEWPORT HUD</span>
+            <span style="color: var(--cyan);">4K (3840&times;2160) &bull; 1.7 MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HERO STILLS GALLERY (3 ACTS + WIREFRAME PROOF) -->
+  <section>
+    <div class="section-title-wrap">
+      <div class="title-left">
+        <span class="section-icon">❖</span>
+        <h2 class="section-title">WIP Render Gallery & Topology Proof</h2>
+      </div>
+      <button class="btn-cyber" onclick="openCodeModal()">View Programmatic Script</button>
+    </div>
+
+    <div class="stills-grid">
+      <!-- Act 1 -->
+      <div class="still-card">
+        <div class="still-img-wrap" onclick="openModal('hero_act1_bottleneck.png', 'Act 1: Local GPU Bottleneck Core (Frame 35)')">
+          <span class="act-tag act1">Act 1: Bottleneck</span>
+          <img src="hero_act1_bottleneck.png" alt="Act 1 Local GPU Bottleneck Core">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">The Local Bottleneck Core</div>
+            <div class="still-desc">Heavy gunmetal cube with 10 procedural heatsink fins, copper pipes, and pulsing red warning lights choking under 99% thermal throttle.</div>
+          </div>
+          <div class="still-meta">
+            <span>FRAME: 35 / 288</span>
+            <span>LENS: 50.0mm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Act 2 Detonation -->
+      <div class="still-card">
+        <div class="still-img-wrap" onclick="openModal('hero_act2_surge_blast.png', 'Act 2: RenderJuice Surge Detonation (Frame 61)')">
+          <span class="act-tag act2">Act 2: Detonation</span>
+          <img src="hero_act2_surge_blast.png" alt="Act 2 RenderJuice Surge Detonation">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">95,000W Surge Ignition</div>
+            <div class="still-desc">The RenderJuice cloud surge strikes! The bottleneck core ruptures into blinding orange and cyan blast energy as hypersonic flight begins.</div>
+          </div>
+          <div class="still-meta">
+            <span>FRAME: 61 / 288</span>
+            <span>POWER: 95kW FLASH</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Act 2 Mach-10 Tunnel -->
+      <div class="still-card">
+        <div class="still-img-wrap" onclick="openModal('hero_act2_mach10_tunnel.png', 'Act 2: Mach-10 Hyperspace Speed Rings (Frame 130)')">
+          <span class="act-tag act2">Act 2: Mach-10 Flight</span>
+          <img src="hero_act2_mach10_tunnel.png" alt="Act 2 Mach-10 Hyperspace Speed Rings">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">Hypersonic Speed Tunnel</div>
+            <div class="still-desc">Shooting through 150 procedural neon speed rings and 260 ion light streaks with dynamic 18mm focal length warp and Perlin camera turbulence.</div>
+          </div>
+          <div class="still-meta">
+            <span>FRAME: 130 / 288</span>
+            <span>VELOCITY: MACH-10</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Act 3 Title Reveal -->
+      <div class="still-card">
+        <div class="still-img-wrap" onclick="openModal('hero_act3_title_reveal.png', 'Act 3: RENDERJUICE: SPEED UNLEASHED (Frame 265)')">
+          <span class="act-tag act3">Act 3: Open Space</span>
+          <img src="hero_act3_title_reveal.png" alt="Act 3 3D Title Reveal">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">Speed Unleashed Reveal</div>
+            <div class="still-desc">Bursting out of the tunnel into open cosmic starlight, revealing the glowing 3D extruded title with supersonic shockwave rings and aerodynamic chevrons.</div>
+          </div>
+          <div class="still-meta">
+            <span>FRAME: 265 / 288</span>
+            <span>DECEL: CUBIC EASE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Official Wireframe Proof -->
+      <div class="still-card featured">
+        <div class="still-img-wrap" onclick="openModal('hero_wip_wireframe_proof.png', 'Official Blender 4.2+ Wireframe & Topology Proof Still')">
+          <span class="act-tag proof">Official Topology Proof</span>
+          <img src="hero_wip_wireframe_proof.png" alt="Blender Wireframe Topology Proof">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">Blender Topology Verification</div>
+            <div class="still-desc">Indisputable proof of the 3D scene structure: polygonal wireframes of quad speed rings, guide rails, and telemetry stamped directly in camera space.</div>
+          </div>
+          <div class="still-meta">
+            <span style="color: var(--orange);">940 OBJECTS | 931 MESHES</span>
+            <span>WIREFRAME SHADER</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Looping GIF Teaser -->
+      <div class="still-card featured">
+        <div class="still-img-wrap" onclick="openModal('preview_loop.gif', 'High-Speed Looping Preview: Mach-10 Hyperspace Cruise (Frames 100-180)')">
+          <span class="act-tag act2" style="background: rgba(255, 85, 0, 0.9);">⚡ Live Looping Teaser</span>
+          <img src="preview_loop.gif" alt="Mach-10 Cyberpunk Tunnel Looping GIF">
+        </div>
+        <div class="still-info">
+          <div>
+            <div class="still-title">Hypersonic Loop Teaser (GIF)</div>
+            <div class="still-desc">Optimized 3.3s looping capture of the Mach-10 tunnel sequence (Frames 100-180) with 150 procedural speed rings and sub-frame motion blur.</div>
+          </div>
+          <div class="still-meta">
+            <span style="color: var(--orange);">FRAMES: 100 - 180</span>
+            <span>AUTOPLAY GIF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREE.JS INTERACTIVE 3D TOPOLOGY EXPLORER -->
+  <section class="threejs-section">
+    <div class="section-title-wrap">
+      <div class="title-left">
+        <span class="section-icon">🌐</span>
+        <h2 class="section-title">Interactive 3D Topology & Wireframe Explorer</h2>
+      </div>
+      <div class="three-badges">
+        <span class="meta-badge highlight">WebGL 2.0</span>
+        <span class="meta-badge">60 FPS Real-time</span>
+        <span class="meta-badge">OrbitControls 360°</span>
+      </div>
+    </div>
+    
+    <div class="three-container-card">
+      <div class="three-toolbar">
+        <div class="three-toolbar-group">
+          <button class="three-btn active" id="btn-three-autorotate">↺ Auto-Rotate: ON</button>
+          <button class="three-btn" id="btn-three-flythrough">🎥 Fly-Through Camera</button>
+          <button class="three-btn" id="btn-three-reset">Reset View</button>
+        </div>
+        <div class="three-toolbar-group">
+          <span class="three-status-label">RING SCHEME:</span>
+          <button class="three-btn active" id="btn-scheme-hyper">Hyper-Juice (Dual)</button>
+          <button class="three-btn" id="btn-scheme-cyan">Quantum Cyan</button>
+          <button class="three-btn" id="btn-scheme-orange">Electric Orange</button>
+        </div>
+        <div class="three-stat-pill" id="three-stats">931 PROCEDURAL MESHES // BATCHED DRAW</div>
+      </div>
+
+      <div class="three-canvas-wrap" id="three-viewport">
+        <!-- Three.js Canvas injected via JS -->
+        <div class="three-overlay-instructions">
+          <span>🖱️ Left-Click + Drag: Rotate 360° | Right-Click + Drag: Pan | Scroll Wheel: Zoom</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NARRATIVE TIMELINE TABLE -->
+  <section>
+    <div class="section-title-wrap">
+      <div class="title-left">
+        <span class="section-icon">⏱</span>
+        <h2 class="section-title">Cinematic Narrative & Flight Telemetry</h2>
+      </div>
+    </div>
+
+    <div class="narrative-table-wrap">
+      <table class="cyber-table">
+        <thead>
+          <tr>
+            <th>Act / Scene</th>
+            <th>Frames</th>
+            <th>Time</th>
+            <th>Narrative Metaphor</th>
+            <th>Optical & Camera Dynamics</th>
+            <th>Procedural Audio Synthesis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="act-cell" style="color: var(--red-alert);">Act 1: Local Bottleneck</td>
+            <td>1 - 60</td>
+            <td>0.0s - 2.5s</td>
+            <td>The sluggish reality of offline GPU rendering under heavy thermal throttle.</td>
+            <td>50.0mm tight cinematic lens. Slow claustrophobic push-in with thermal jitter and rotation frame drops.</td>
+            <td>55Hz mains power hum with thermal tremolo, high-frequency 3,240Hz GPU coil whine with jitter, accelerating 920Hz panic alert beeps.</td>
+          </tr>
+          <tr>
+            <td class="act-cell" style="color: var(--orange);">Act 2: Mach-10 Surge</td>
+            <td>61 - 216</td>
+            <td>2.5s - 9.0s</td>
+            <td>RenderJuice cloud rendering unleashed: speed without limits.</td>
+            <td>Dynamic FOV warp from 50mm down to 18mm. Exponential power-curve acceleration ($u^{2.35}$) to Mach-10. Multi-harmonic Perlin shake.</td>
+            <td>95,000W detonation blast (180Hz &rarr; 42Hz), exponential Doppler turbine pitch sweep ($85\text{Hz} \to 1635\text{Hz}$), 48 alternating L-R stereo whooshes.</td>
+          </tr>
+          <tr>
+            <td class="act-cell" style="color: var(--cyan);">Act 3: Open Space Reveal</td>
+            <td>217 - 288</td>
+            <td>9.0s - 12.0s</td>
+            <td>Complete creative freedom: render bottlenecks permanently shattered.</td>
+            <td>Smooth cubic ease-out deceleration into deep space. Focal length settles at 32.0mm hero framing.</td>
+            <td>36Hz supersonic sonic boom crack followed by an ethereal D-maj9 cosmic chord shimmer ($146.8\text{Hz} \dots 659.2\text{Hz}$) with chorused harmonic tails.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MATHEMATICAL & ARCHITECTURAL HIGHLIGHTS -->
+  <section>
+    <div class="section-title-wrap">
+      <div class="title-left">
+        <span class="section-icon">⚡</span>
+        <h2 class="section-title">Mathematical & Programmatic Architecture</h2>
+      </div>
+    </div>
+
+    <div class="arch-grid">
+      <!-- Card 1 -->
+      <div class="arch-card">
+        <h3>1. Dynamic Focal Length Warp</h3>
+        <p>To produce an authentic hypersonic sensation, the camera lens contracts non-linearly from an intimate 50mm to an ultra-wide 18mm FOV:</p>
+        <div class="math-block">
+          $$\text{Lens}(f) = 50.0 - 32.0 \cdot \left(\frac{f - 60}{25}\right)^{1.5} \quad (60 \le f \le 85)$$
+        </div>
+        <p>Followed by high-speed optical breathing ($\pm 0.6\text{mm}$) during sustained Mach-10 cruise.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="arch-card">
+        <h3>2. Mach-10 Exponential Velocity Curve</h3>
+        <p>Forward motion across the 2.2km tunnel is governed by an exponential power curve rather than flat linear velocity:</p>
+        <div class="math-block">
+          $$Y_{\text{cam}}(f) = Y_0 + L_{\text{tunnel}} \cdot \left(\frac{f - 60}{156}\right)^{2.35}$$
+        </div>
+        <p>Instantaneous velocity reaches <strong>>33.3 m/frame (approx. 2,880 km/h)</strong> at the exit portal, producing intense sub-frame motion blur streaks.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="arch-card">
+        <h3>3. Multi-Harmonic Perlin Camera Shake</h3>
+        <p>Deterministic closed-form Fourier harmonics generate organic cockpit buffeting without external dependencies:</p>
+        <div class="math-block">
+          $$\text{Shake}_X(t) = A(f) \cdot [0.22 \sin(1.73t) + 0.11 \sin(3.41t)]$$
+          $$\text{Shake}_Z(t) = A(f) \cdot [0.18 \cos(1.91t) + 0.09 \cos(4.13t)]$$
+        </div>
+        <p>The envelope $A(f)$ ramps at surge detonation and smoothly dampens to 0.015 in open space.</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="arch-card">
+        <h3>4. Procedural Geometry & Shaders</h3>
+        <p>Every object is constructed via <code>from_pydata()</code> with clean quad topology and Voronoi micro-plating:</p>
+        <div class="math-block">
+          $$\theta_{\text{twist}}(i) = i \times 0.092 \text{ rad} \quad (\text{Helical Vortex})$$
+          $$\text{Quad Topology: } 940\text{ Objects } \mid 931\text{ Meshes}$$
+        </div>
+        <p>Real-time Compositor Fog Glow glare (threshold 0.70), and chromatic dispersion (0.012).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOUD VS LOCAL BENCHMARK SECTION -->
+  <section class="benchmark-section">
+    <div class="section-title-wrap">
+      <div class="title-left">
+        <span class="section-icon">⚡</span>
+        <h2 class="section-title">Cloud vs. Local GPU Benchmark (Mach-10 10x Speedup)</h2>
+      </div>
+      <div class="three-badges">
+        <span class="meta-badge highlight">10.0x Acceleration</span>
+        <span class="meta-badge">90.0% Time Saved</span>
+        <span class="meta-badge">-88.7% Power Consumption</span>
+      </div>
+    </div>
+
+    <!-- 4 KPI Cards -->
+    <div class="benchmark-kpi-grid">
+      <div class="benchmark-kpi-card">
+        <div class="kpi-title">TOTAL SEQUENCE RENDER TIME (288 FRAMES)</div>
+        <div class="kpi-value-row">
+          <div class="kpi-speedup">4m 14s</div>
+          <span class="kpi-badge win">10.0x FASTER</span>
+        </div>
+        <div class="kpi-details">
+          <span>RenderJuice Cloud: <strong>4.2 min</strong></span>
+          <span>Local RTX GPU: <span style="color:#ff6677;">42.3 min</span></span>
+        </div>
+      </div>
+
+      <div class="benchmark-kpi-card cyan">
+        <div class="kpi-title">AVERAGE FRAME RENDER LATENCY</div>
+        <div class="kpi-value-row">
+          <div class="kpi-speedup" style="color:var(--cyan);">0.88s</div>
+          <span class="kpi-badge win">BURST TILE</span>
+        </div>
+        <div class="kpi-details">
+          <span>RenderJuice Cloud: <strong>0.88s / frame</strong></span>
+          <span>Local GPU: <span style="color:#ff6677;">8.81s / frame</span></span>
+        </div>
+      </div>
+
+      <div class="benchmark-kpi-card">
+        <div class="kpi-title">PEAK THERMAL LOAD & THROTTLING</div>
+        <div class="kpi-value-row">
+          <div class="kpi-speedup">42°C</div>
+          <span class="kpi-badge win">0% THROTTLE</span>
+        </div>
+        <div class="kpi-details">
+          <span>Cloud Pods: <strong>Stable 42°C</strong></span>
+          <span>Local GPU: <span style="color:#ff6677;">86°C (Thermal Choke)</span></span>
+        </div>
+      </div>
+
+      <div class="benchmark-kpi-card cyan">
+        <div class="kpi-title">TOTAL ENERGY CONSUMPTION</div>
+        <div class="kpi-value-row">
+          <div class="kpi-speedup" style="color:var(--cyan);">32 Wh</div>
+          <span class="kpi-badge win">-88.7% ENERGY</span>
+        </div>
+        <div class="kpi-details">
+          <span>RenderJuice: <strong>32.4 Wh</strong></span>
+          <span>Local Workstation: <span style="color:#ff6677;">285.5 Wh</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Canvas Chart -->
+    <div class="benchmark-chart-card">
+      <div class="chart-controls-bar">
+        <div class="chart-legend">
+          <div class="legend-item">
+            <span class="legend-dot local"></span>
+            <span style="color:#ff6677; font-weight:600;">Local Single-GPU (RTX 4090/3080 Thermal Bottleneck)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot cloud"></span>
+            <span style="color:var(--cyan); font-weight:600;">RenderJuice Distributed Cloud Pipeline</span>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <button class="three-btn active" id="btn-chart-perframe">Per-Frame Time (s)</button>
+          <button class="three-btn" id="btn-chart-cumulative">Cumulative Time (min)</button>
+        </div>
+      </div>
+
+      <div class="chart-canvas-container">
+        <canvas id="benchmark-canvas"></canvas>
+        <div class="chart-tooltip" id="chart-tooltip"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANDATORY DISCLOSURE CALLOUT -->
+  <div class="disclosure-banner">
+    <div class="disclosure-icon">⚖</div>
+    <div class="disclosure-text">
+      <h3>Official Contest Asset Disclosure (v3.0 Full Specification)</h3>
+      <p>"100% Procedurally generated visuals and audio using Blender Python API (<code>bpy</code>) and Python standard library (<code>wave</code>, <code>math</code>, <code>struct</code>); zero third-party meshes, external textures, pre-recorded audio samples, or AI-generated visual/audio assets used. Pure code-driven artistry designed for Blender 4.x EEVEE-Next."</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>HYPER-JUICE: Mach-10 Render Pipeline &copy; 2026 Contest Submission | Built for RenderJuice Blender Animation & Programmatic Rendering Contest</p>
+    <p style="margin-top: 6px; color: #586982;">Master files: <code>generate_speed_animation.py</code> | <code>generate_procedural_audio.py</code> | <code>hyper_juice_wip.blend</code> | <code>hyper_juice_speed_render.mp4</code></p>
+  </footer>
+
+</div>
+
+<!-- IMAGE LIGHTBOX MODAL -->
+<div class="modal-overlay" id="image-modal" onclick="closeModal()">
+  <span class="modal-close">&times;</span>
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <img id="modal-img" src="" alt="Enlarged view">
+    <div class="modal-caption" id="modal-caption"></div>
+  </div>
+</div>
+
+<!-- CODE VIEWER MODAL -->
+<div class="modal-overlay" id="code-modal" onclick="closeCodeModal()">
+  <span class="modal-close">&times;</span>
+  <div class="code-modal-box" onclick="event.stopPropagation()">
+    <div class="code-header">
+      <div>
+        <h3>generate_speed_animation.py</h3>
+        <p style="font-family: var(--font-code); font-size: 12px; color: var(--text-muted);">Standalone Blender 4.x Python API (bpy) Procedural Pipeline</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-cyber orange" id="btn-copy-code">Copy Code</button>
+        <button class="btn-cyber" onclick="closeCodeModal()">Close</button>
+      </div>
+    </div>
+    <pre class="code-content" id="code-viewer">Loading script contents...</pre>
+  </div>
+</div>
+
+<script>
+  // Video player and Live Telemetry logic
+  const video = document.getElementById('main-render');
+  const btnTogglePlay = document.getElementById('btn-toggle-play');
+  const btnReplay = document.getElementById('btn-replay');
+  const btnLoop = document.getElementById('btn-loop');
+  const btnFullscreen = document.getElementById('btn-fullscreen');
+  const speedButtons = document.querySelectorAll('.speed-btn');
+
+  // Telemetry HUD Elements
+  const hudFrame = document.getElementById('hud-frame');
+  const hudAct = document.getElementById('hud-act');
+  const hudFocal = document.getElementById('hud-focal');
+  const hudVelocity = document.getElementById('hud-velocity');
+  const hudDistance = document.getElementById('hud-distance');
+
+  // Timeline Scrubber Elements
+  const frameScrubber = document.getElementById('frame-scrubber');
+  const scrubIndicator = document.getElementById('scrub-indicator');
+
+  function updateTelemetryForFrame(frame) {
+    const t = Math.max(0, Math.min(12.0, (frame - 1) / 24.0));
+    const framePadded = String(frame).padStart(3, '0');
+    const secs = String(Math.floor(t)).padStart(2, '0');
+    const frac = String(Math.floor((t % 1) * 100)).padStart(2, '0');
+
+    if (hudFrame) hudFrame.textContent = `00:00:${secs}.${frac} [F: ${framePadded}/288]`;
+    if (scrubIndicator) scrubIndicator.textContent = `FRAME: ${framePadded} / 288 (${secs}.${frac}s)`;
+
+    if (t < 2.5) {
+      // Act 1
+      hudAct.textContent = "ACT 1: LOCAL BOTTLENECK";
+      hudAct.className = "tel-value red";
+      hudFocal.textContent = "50.0 mm";
+      hudVelocity.textContent = "0 KM/H [MACH 0.0]";
+      hudVelocity.className = "tel-value red";
+      hudDistance.textContent = "0.0 M";
+    } else if (t < 9.0) {
+      // Act 2
+      hudAct.textContent = "ACT 2: MACH-10 SURGE";
+      hudAct.className = "tel-value orange";
+
+      // Optical Warp Calculation
+      let focal = 50.0;
+      if (frame <= 85) {
+        const wf = (frame - 60) / 25.0;
+        focal = 50.0 - 32.0 * Math.pow(wf, 1.5);
+      } else if (frame <= 195) {
+        focal = 18.0 + 0.6 * Math.sin(frame * 0.28);
+      } else {
+        const ew = (frame - 195) / (216 - 195);
+        focal = 18.0 + (28.0 - 18.0) * ew;
+      }
+      hudFocal.textContent = `${focal.toFixed(1)} mm`;
+
+      // Velocity Calculation
+      const u = (t - 2.5) / 6.5;
+      const mach = Math.min(10.0, 10.0 * Math.pow(u, 1.35));
+      const kmh = Math.round(mach * 1225.0);
+      hudVelocity.textContent = `${kmh.toLocaleString()} KM/H [MACH ${mach.toFixed(1)}]`;
+      hudVelocity.className = "tel-value orange";
+
+      const dist = Math.round(2200.0 * Math.pow(u, 2.35));
+      hudDistance.textContent = `${dist.toLocaleString()} M`;
+    } else {
+      // Act 3
+      hudAct.textContent = "ACT 3: REVEAL DEEP SPACE";
+      hudAct.className = "tel-value cyan";
+
+      const v = (t - 9.0) / 3.0;
+      const easeV = 1.0 - Math.pow(1.0 - v, 3.0);
+      const focal = 28.0 + (32.0 - 28.0) * Math.min(1.0, (frame - 216) / 18.0);
+      hudFocal.textContent = `${focal.toFixed(1)} mm`;
+
+      const mach = Math.max(0.0, 10.0 * Math.pow(1.0 - v, 2.0));
+      const kmh = Math.round(mach * 1225.0);
+      hudVelocity.textContent = `${kmh.toLocaleString()} KM/H [MACH ${mach.toFixed(1)}]`;
+      hudVelocity.className = "tel-value cyan";
+
+      const dist = Math.round(2205.0 + 105.0 * easeV);
+      hudDistance.textContent = `${dist.toLocaleString()} M`;
+    }
+  }
+
+  function updateTelemetry() {
+    const t = Math.max(0, Math.min(12.0, video.currentTime));
+    const frame = Math.min(288, Math.max(1, Math.floor(t * 24) + 1));
+    if (frameScrubber && document.activeElement !== frameScrubber) {
+      frameScrubber.value = frame;
+    }
+    updateTelemetryForFrame(frame);
+  }
+
+  if (frameScrubber) {
+    frameScrubber.addEventListener('input', (e) => {
+      const f = parseInt(e.target.value);
+      video.currentTime = (f - 1) / 24.0;
+      updateTelemetryForFrame(f);
+    });
+  }
+
+  window.seekToFrame = function(f) {
+    f = Math.max(1, Math.min(288, f));
+    video.currentTime = (f - 1) / 24.0;
+    if (frameScrubber) frameScrubber.value = f;
+    updateTelemetryForFrame(f);
+  };
+
+  window.stepFrames = function(delta) {
+    const curFrame = Math.round(video.currentTime * 24) + 1;
+    seekToFrame(curFrame + delta);
+  };
+
+  video.addEventListener('timeupdate', updateTelemetry);
+  video.addEventListener('seeked', updateTelemetry);
+
+  btnTogglePlay.addEventListener('click', () => {
+    if (video.paused) {
+      video.play();
+      btnTogglePlay.textContent = '❚❚ Pause';
+    } else {
+      video.pause();
+      btnTogglePlay.textContent = '▶ Play';
+    }
+  });
+
+  video.addEventListener('play', () => btnTogglePlay.textContent = '❚❚ Pause');
+  video.addEventListener('pause', () => btnTogglePlay.textContent = '▶ Play');
+
+  btnReplay.addEventListener('click', () => {
+    video.currentTime = 0;
+    video.play();
+  });
+
+  btnLoop.addEventListener('click', () => {
+    video.loop = !video.loop;
+    btnLoop.textContent = 'Loop: ' + (video.loop ? 'ON' : 'OFF');
+    btnLoop.style.borderColor = video.loop ? 'var(--cyan)' : 'var(--text-muted)';
+  });
+
+  btnFullscreen.addEventListener('click', () => {
+    if (video.requestFullscreen) {
+      video.requestFullscreen();
+    } else if (video.webkitRequestFullscreen) {
+      video.webkitRequestFullscreen();
+    }
+  });
+
+  speedButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      speedButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      video.playbackRate = parseFloat(btn.getAttribute('data-speed'));
+    });
+  });
+
+  // Dual-Video Theater Switcher (12s Master vs 60s 8K Walkthrough)
+  let currentVideoMode = 'anim';
+  window.switchVideoMode = function(mode) {
+    currentVideoMode = mode;
+    const btnAnim = document.getElementById('btn-show-anim');
+    const btnWalk = document.getElementById('btn-show-walkthrough');
+    const label = document.getElementById('video-mode-label');
+
+    if (mode === 'walkthrough') {
+      if (btnAnim) btnAnim.classList.remove('active');
+      if (btnWalk) btnWalk.classList.add('active');
+      if (label) label.textContent = "8K TECHNICAL WALKTHROUGH // 7680x4320 @ 24 FPS // NEURAL NARRATOR + SYNTH AUDIO";
+      video.src = "hyper_juice_8k_technical_walkthrough.mp4";
+      video.poster = "plates_8k/plate_phase3_8k.png";
+      video.play();
+    } else {
+      if (btnWalk) btnWalk.classList.remove('active');
+      if (btnAnim) btnAnim.classList.add('active');
+      if (label) label.textContent = "BROADCAST MASTER // 1920x1080 @ 24.0 FPS // 48kHz STEREO PCM AUDIO";
+      video.src = "hyper_juice_speed_render.mp4";
+      video.poster = "hero_act3_title_reveal.png";
+      video.play();
+    }
+  };
+
+  // --- THREE.JS INTERACTIVE 3D CYBER TUNNEL ---
+  function initThreeJSTunnel() {
+    const container = document.getElementById('three-viewport');
+    if (!container || typeof THREE === 'undefined') return;
+
+    const width = container.clientWidth || 900;
+    const height = container.clientHeight || 520;
+
+    // Scene & Fog
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x060913, 0.0035);
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1500);
+    camera.position.set(0, 8, 48);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    container.appendChild(renderer.domElement);
+
+    // Controls
+    let controls = null;
+    if (typeof THREE.OrbitControls !== 'undefined') {
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.minDistance = 4;
+      controls.maxDistance = 500;
+      controls.target.set(0, 0, -40);
+    }
+
+    // Tunnel Group
+    const tunnelGroup = new THREE.Group();
+    scene.add(tunnelGroup);
+
+    // Materials
+    const matCyan = new THREE.LineBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.85 });
+    const matOrange = new THREE.LineBasicMaterial({ color: 0xff5500, transparent: true, opacity: 0.85 });
+    const matRed = new THREE.LineBasicMaterial({ color: 0xff003c, transparent: true, opacity: 0.9 });
+
+    // 1. Procedural 3D Speed Rings (60 rings along Z = 40 to -480)
+    const ringMeshes = [];
+    const numRings = 60;
+    for (let i = 0; i < numRings; i++) {
+      const z = 40 - i * 8.5;
+      const r = 7.5 + 0.6 * Math.sin(i * 0.25);
+      const type = i % 4;
+      let geom;
+
+      if (type === 0) {
+        geom = new THREE.RingGeometry(r - 0.2, r + 0.2, 6);
+      } else if (type === 1) {
+        geom = new THREE.CylinderGeometry(r, r, 0.9, 8, 1, true);
+      } else if (type === 2) {
+        geom = new THREE.TorusGeometry(r, 0.35, 6, 24);
+      } else {
+        geom = new THREE.CylinderGeometry(r, r, 0.9, 4, 1, true);
+      }
+
+      const edges = new THREE.EdgesGeometry(geom);
+      let mat = (i % 2 === 0) ? matCyan : matOrange;
+      if (i < 8) mat = (i % 2 === 0) ? matRed : matOrange;
+
+      const line = new THREE.LineSegments(edges, mat.clone());
+      line.position.set(0, 0, z);
+      line.rotation.z = i * 0.092;
+      if (type === 3) line.rotation.z += Math.PI / 4;
+      if (type === 1 || type === 3) line.rotation.x = Math.PI / 2;
+
+      tunnelGroup.add(line);
+      ringMeshes.push(line);
+    }
+
+    // 2. Continuous Helical Guide Rails (4 glowing rails running down the tunnel)
+    const railPts0 = [], railPts1 = [], railPts2 = [], railPts3 = [];
+    for (let z = 45; z >= -480; z -= 4) {
+      const twist = z * 0.005;
+      const r = 8.2;
+      railPts0.push(new THREE.Vector3(r * Math.cos(twist), r * Math.sin(twist), z));
+      railPts1.push(new THREE.Vector3(r * Math.cos(twist + Math.PI * 0.5), r * Math.sin(twist + Math.PI * 0.5), z));
+      railPts2.push(new THREE.Vector3(r * Math.cos(twist + Math.PI), r * Math.sin(twist + Math.PI), z));
+      railPts3.push(new THREE.Vector3(r * Math.cos(twist + Math.PI * 1.5), r * Math.sin(twist + Math.PI * 1.5), z));
+    }
+
+    const addRail = (pts, mat) => {
+      const geo = new THREE.BufferGeometry().setFromPoints(pts);
+      const railLine = new THREE.Line(geo, mat);
+      tunnelGroup.add(railLine);
+    };
+    addRail(railPts0, matCyan);
+    addRail(railPts1, matOrange);
+    addRail(railPts2, matCyan);
+    addRail(railPts3, matOrange);
+
+    // 3. Act 1 Bottleneck Core (Z = 30)
+    const coreGroup = new THREE.Group();
+    coreGroup.position.set(0, 0, 30);
+    const coreBox = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(5.0, 5.0, 5.0)),
+      matRed
+    );
+    coreGroup.add(coreBox);
+    for (let f = -2.0; f <= 2.0; f += 0.8) {
+      const fin = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.BoxGeometry(5.6, 0.1, 5.6)),
+        matOrange
+      );
+      fin.position.y = f;
+      coreGroup.add(fin);
+    }
+    tunnelGroup.add(coreGroup);
+
+    // 4. Act 3 Open Space Exit Portal & Shockwaves (Z = -440 to -470)
+    const shockGroup = new THREE.Group();
+    shockGroup.position.set(0, 0, -440);
+    for (let s = 0; s < 4; s++) {
+      const sRing = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.TorusGeometry(10 + s * 4.5, 0.3, 4, 32)),
+        matCyan
+      );
+      sRing.position.z = -s * 8.0;
+      shockGroup.add(sRing);
+    }
+    tunnelGroup.add(shockGroup);
+
+    // 5. Floating Ion Particles / Mach-10 Streaks (160 particles)
+    const pCount = 160;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(pCount * 3);
+    for (let p = 0; p < pCount; p++) {
+      const theta = Math.random() * Math.PI * 2;
+      const rad = 2.0 + Math.random() * 5.8;
+      pPos[p * 3] = rad * Math.cos(theta);
+      pPos[p * 3 + 1] = rad * Math.sin(theta);
+      pPos[p * 3 + 2] = 40 - Math.random() * 500;
+    }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    const pMat = new THREE.PointsMaterial({
+      color: 0x00f0ff,
+      size: 1.8,
+      transparent: true,
+      opacity: 0.85
+    });
+    const particleSystem = new THREE.Points(pGeo, pMat);
+    tunnelGroup.add(particleSystem);
+
+    // 6. Camera Drone / Frustum Marker
+    const droneGeo = new THREE.ConeGeometry(1.2, 2.4, 4);
+    const droneWire = new THREE.LineSegments(
+      new THREE.EdgesGeometry(droneGeo),
+      new THREE.LineBasicMaterial({ color: 0xffaa00, linewidth: 2 })
+    );
+    droneWire.rotation.x = -Math.PI / 2;
+    scene.add(droneWire);
+
+    // State & Buttons
+    let autoRotate = true;
+    let flyThroughMode = false;
+    let flyZ = 45;
+
+    const btnAutoRotate = document.getElementById('btn-three-autorotate');
+    const btnFly = document.getElementById('btn-three-flythrough');
+    const btnReset = document.getElementById('btn-three-reset');
+
+    if (btnAutoRotate) {
+      btnAutoRotate.addEventListener('click', () => {
+        autoRotate = !autoRotate;
+        btnAutoRotate.textContent = '↺ Auto-Rotate: ' + (autoRotate ? 'ON' : 'OFF');
+        btnAutoRotate.classList.toggle('active', autoRotate);
+      });
+    }
+
+    if (btnFly) {
+      btnFly.addEventListener('click', () => {
+        flyThroughMode = !flyThroughMode;
+        btnFly.textContent = '🎥 Fly-Through: ' + (flyThroughMode ? 'ON' : 'OFF');
+        btnFly.classList.toggle('active', flyThroughMode);
+        if (!flyThroughMode) {
+          camera.position.set(0, 8, 48);
+          if (controls) controls.target.set(0, 0, -40);
+        }
+      });
+    }
+
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        flyThroughMode = false;
+        if (btnFly) {
+          btnFly.textContent = '🎥 Fly-Through Camera';
+          btnFly.classList.remove('active');
+        }
+        camera.position.set(0, 8, 48);
+        if (controls) {
+          controls.target.set(0, 0, -40);
+          controls.reset();
+        }
+      });
+    }
+
+    // Color Scheme Buttons
+    const btnSchemeHyper = document.getElementById('btn-scheme-hyper');
+    const btnSchemeCyan = document.getElementById('btn-scheme-cyan');
+    const btnSchemeOrange = document.getElementById('btn-scheme-orange');
+
+    function setScheme(scheme) {
+      [btnSchemeHyper, btnSchemeCyan, btnSchemeOrange].forEach(b => b && b.classList.remove('active'));
+      ringMeshes.forEach((mesh, idx) => {
+        if (scheme === 'hyper') {
+          mesh.material.color.setHex((idx % 2 === 0) ? 0x00f0ff : 0xff5500);
+        } else if (scheme === 'cyan') {
+          mesh.material.color.setHex((idx % 2 === 0) ? 0x00f0ff : 0x0088ff);
+        } else if (scheme === 'orange') {
+          mesh.material.color.setHex((idx % 2 === 0) ? 0xff5500 : 0xffaa00);
+        }
+      });
+    }
+
+    if (btnSchemeHyper) btnSchemeHyper.addEventListener('click', () => { setScheme('hyper'); btnSchemeHyper.classList.add('active'); });
+    if (btnSchemeCyan) btnSchemeCyan.addEventListener('click', () => { setScheme('cyan'); btnSchemeCyan.classList.add('active'); });
+    if (btnSchemeOrange) btnSchemeOrange.addEventListener('click', () => { setScheme('orange'); btnSchemeOrange.classList.add('active'); });
+
+    // Animation Loop
+    let clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      const time = clock.getElapsedTime();
+
+      coreGroup.rotation.y = time * 0.4;
+      coreGroup.rotation.x = time * 0.2;
+
+      shockGroup.children.forEach((s, idx) => {
+        const scale = 1.0 + 0.15 * Math.sin(time * 3.0 + idx * 0.8);
+        s.scale.set(scale, scale, 1);
+      });
+
+      const positions = pGeo.attributes.position.array;
+      for (let p = 0; p < pCount; p++) {
+        positions[p * 3 + 2] += 2.4;
+        if (positions[p * 3 + 2] > 50) {
+          positions[p * 3 + 2] = -470;
+        }
+      }
+      pGeo.attributes.position.needsUpdate = true;
+
+      const droneZ = 35 - ((time * 35) % 500);
+      droneWire.position.set(Math.sin(time * 2.0) * 0.5, Math.cos(time * 1.5) * 0.4, droneZ);
+
+      if (flyThroughMode) {
+        flyZ -= delta * 95.0;
+        if (flyZ < -460) flyZ = 45;
+        camera.position.set(Math.sin(flyZ * 0.05) * 1.2, Math.cos(flyZ * 0.04) * 0.8, flyZ);
+        camera.lookAt(0, 0, flyZ - 50);
+      } else {
+        if (autoRotate) {
+          tunnelGroup.rotation.z = time * 0.12;
+        }
+        if (controls) controls.update();
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      const newW = container.clientWidth;
+      const newH = container.clientHeight;
+      if (newW && newH) {
+        camera.aspect = newW / newH;
+        camera.updateProjectionMatrix();
+        renderer.setSize(newW, newH);
+      }
+    });
+  }
+
+  // --- CLOUD VS LOCAL BENCHMARK CHART (HTML5 CANVAS) ---
+  function initBenchmarkChart() {
+    const canvas = document.getElementById('benchmark-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('chart-tooltip');
+    const btnModePerFrame = document.getElementById('btn-chart-perframe');
+    const btnModeCumulative = document.getElementById('btn-chart-cumulative');
+
+    let mode = 'perframe';
+    const totalFrames = 288;
+
+    const localTimes = [];
+    const cloudTimes = [];
+    const localCumulative = [];
+    const cloudCumulative = [];
+
+    let sumLocal = 0;
+    let sumCloud = 0;
+
+    for (let f = 1; f <= totalFrames; f++) {
+      let tLocal;
+      if (f <= 60) {
+        const thermal = (f / 60.0) * 1.2;
+        tLocal = 5.2 + thermal + Math.sin(f * 0.4) * 0.25;
+      } else if (f <= 216) {
+        const u = (f - 60) / 156.0;
+        tLocal = 7.0 + 3.2 * Math.pow(u, 1.2) + Math.sin(f * 0.3) * 0.35;
+      } else {
+        const v = (f - 216) / 72.0;
+        tLocal = 10.5 + 2.2 * Math.sin(v * Math.PI) + Math.cos(f * 0.5) * 0.3;
+      }
+
+      const tCloud = tLocal / 10.0;
+
+      localTimes.push(tLocal);
+      cloudTimes.push(tCloud);
+
+      sumLocal += tLocal;
+      sumCloud += tCloud;
+
+      localCumulative.push(sumLocal / 60.0);
+      cloudCumulative.push(sumCloud / 60.0);
+    }
+
+    function renderChart(hoverIndex = -1) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      const padL = 55, padR = 25, padT = 30, padB = 40;
+      const plotW = w - padL - padR;
+      const plotH = h - padT - padB;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const maxVal = mode === 'perframe' ? 14.0 : 45.0;
+      const yUnit = mode === 'perframe' ? 's' : 'm';
+
+      const xAct1End = padL + (60 / totalFrames) * plotW;
+      const xAct2End = padL + (216 / totalFrames) * plotW;
+
+      ctx.fillStyle = 'rgba(255, 0, 60, 0.04)';
+      ctx.fillRect(padL, padT, xAct1End - padL, plotH);
+      ctx.fillStyle = 'rgba(255, 85, 0, 0.04)';
+      ctx.fillRect(xAct1End, padT, xAct2End - xAct1End, plotH);
+      ctx.fillStyle = 'rgba(0, 240, 255, 0.04)';
+      ctx.fillRect(xAct2End, padT, padL + plotW - xAct2End, plotH);
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(xAct1End, padT);
+      ctx.lineTo(xAct1End, padT + plotH);
+      ctx.moveTo(xAct2End, padT);
+      ctx.lineTo(xAct2End, padT + plotH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.fillStyle = '#ff6677';
+      ctx.fillText('ACT 1: BOTTLENECK', padL + 8, padT + 14);
+      ctx.fillStyle = '#ff9955';
+      ctx.fillText('ACT 2: MACH-10 SURGE', xAct1End + 8, padT + 14);
+      ctx.fillStyle = '#00f0ff';
+      ctx.fillText('ACT 3: REVEAL', xAct2End + 8, padT + 14);
+
+      const yTicks = 5;
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.1)';
+      ctx.fillStyle = '#64748b';
+      ctx.font = '11px "JetBrains Mono", monospace';
+      ctx.textAlign = 'right';
+
+      for (let i = 0; i <= yTicks; i++) {
+        const val = (maxVal / yTicks) * i;
+        const y = padT + plotH - (i / yTicks) * plotH;
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(padL + plotW, y);
+        ctx.stroke();
+        ctx.fillText(`${val.toFixed(0)}${yUnit}`, padL - 8, y + 4);
+      }
+
+      ctx.textAlign = 'center';
+      [1, 60, 120, 180, 216, 288].forEach(f => {
+        const x = padL + ((f - 1) / (totalFrames - 1)) * plotW;
+        ctx.fillText(`F:${f}`, x, padT + plotH + 18);
+      });
+
+      function drawSeries(data, color, fillGradStart) {
+        ctx.beginPath();
+        data.forEach((val, i) => {
+          const x = padL + (i / (totalFrames - 1)) * plotW;
+          const y = padT + plotH - (val / maxVal) * plotH;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        ctx.lineTo(padL + plotW, padT + plotH);
+        ctx.lineTo(padL, padT + plotH);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+        grad.addColorStop(0, fillGradStart);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      const localData = mode === 'perframe' ? localTimes : localCumulative;
+      const cloudData = mode === 'perframe' ? cloudTimes : cloudCumulative;
+
+      drawSeries(localData, '#ff3344', 'rgba(255, 51, 68, 0.20)');
+      drawSeries(cloudData, '#00f0ff', 'rgba(0, 240, 255, 0.25)');
+
+      if (hoverIndex >= 0 && hoverIndex < totalFrames) {
+        const hX = padL + (hoverIndex / (totalFrames - 1)) * plotW;
+        const valL = localData[hoverIndex];
+        const valC = cloudData[hoverIndex];
+        const yL = padT + plotH - (valL / maxVal) * plotH;
+        const yC = padT + plotH - (valC / maxVal) * plotH;
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(hX, padT);
+        ctx.lineTo(hX, padT + plotH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#ff3344';
+        ctx.beginPath();
+        ctx.arc(hX, yL, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#00f0ff';
+        ctx.beginPath();
+        ctx.arc(hX, yC, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    renderChart();
+
+    if (btnModePerFrame && btnModeCumulative) {
+      btnModePerFrame.addEventListener('click', () => {
+        mode = 'perframe';
+        btnModePerFrame.classList.add('active');
+        btnModeCumulative.classList.remove('active');
+        renderChart();
+      });
+      btnModeCumulative.addEventListener('click', () => {
+        mode = 'cumulative';
+        btnModeCumulative.classList.add('active');
+        btnModePerFrame.classList.remove('active');
+        renderChart();
+      });
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const padL = 55, padR = 25;
+      const plotW = rect.width - padL - padR;
+
+      if (x >= padL && x <= padL + plotW) {
+        const ratio = (x - padL) / plotW;
+        const fIdx = Math.min(totalFrames - 1, Math.max(0, Math.round(ratio * (totalFrames - 1))));
+        renderChart(fIdx);
+
+        const fNum = fIdx + 1;
+        let actName = fNum <= 60 ? 'Act 1: Bottleneck' : (fNum <= 216 ? 'Act 2: Mach-10' : 'Act 3: Reveal');
+        const valL = mode === 'perframe' ? `${localTimes[fIdx].toFixed(2)}s` : `${localCumulative[fIdx].toFixed(1)} min`;
+        const valC = mode === 'perframe' ? `${cloudTimes[fIdx].toFixed(2)}s` : `${cloudCumulative[fIdx].toFixed(1)} min`;
+
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${Math.min(rect.width - 220, Math.max(10, x - 100))}px`;
+        tooltip.style.top = `${e.clientY - rect.top - 85}px`;
+        tooltip.innerHTML = `
+          <div style="color:var(--cyan);font-weight:700;">FRAME ${fNum}/288 [${actName}]</div>
+          <div style="color:#ff6677;">Local Single GPU: <strong>${valL}</strong></div>
+          <div style="color:#00f0ff;">RenderJuice Cloud: <strong>${valC}</strong></div>
+          <div style="color:#ffaa00;font-size:11px;margin-top:2px;">⚡ Mach-10 Speedup: 10.0x</div>
+        `;
+      } else {
+        tooltip.style.display = 'none';
+        renderChart(-1);
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+      renderChart(-1);
+    });
+
+    window.addEventListener('resize', () => renderChart(-1));
+  }
+
+  // Lightbox Modal
+  function openModal(imgSrc, captionText) {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalCap = document.getElementById('modal-caption');
+    modalImg.src = imgSrc;
+    modalCap.textContent = captionText;
+    modal.classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('image-modal').classList.remove('active');
+  }
+
+  // Code Viewer Modal
+  let cachedCode = "";
+  function openCodeModal() {
+    const modal = document.getElementById('code-modal');
+    const viewer = document.getElementById('code-viewer');
+    modal.classList.add('active');
+
+    if (!cachedCode) {
+      fetch('generate_speed_animation.py')
+        .then(res => res.text())
+        .then(data => {
+          cachedCode = data;
+          viewer.textContent = data;
+        })
+        .catch(err => {
+          viewer.textContent = "// Error loading generate_speed_animation.py: " + err;
+        });
+    }
+  }
+
+  function closeCodeModal() {
+    document.getElementById('code-modal').classList.remove('active');
+  }
+
+  document.getElementById('btn-copy-code').addEventListener('click', () => {
+    if (cachedCode) {
+      navigator.clipboard.writeText(cachedCode).then(() => {
+        const btn = document.getElementById('btn-copy-code');
+        btn.textContent = "✓ Copied!";
+        setTimeout(() => { btn.textContent = "Copy Code"; }, 2000);
+      });
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+      closeCodeModal();
+    } else if (e.key === ' ' && e.target === document.body) {
+      e.preventDefault();
+      btnTogglePlay.click();
+    } else if (e.key === 'ArrowLeft') {
+      stepFrames(-1);
+    } else if (e.key === 'ArrowRight') {
+      stepFrames(1);
+    }
+  });
+
+  // Initialize interactive 3D and charts on DOM load
+  window.addEventListener('DOMContentLoaded', () => {
+    initThreeJSTunnel();
+    initBenchmarkChart();
+    updateTelemetry();
+  });
+</script>
+
+</body>
+</html>

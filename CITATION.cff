@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use or reference this programmatic animation pipeline, please cite it as below."
+authors:
+  - family-names: "Islam"
+    given-names: "Fokrul"
+title: "HYPER-JUICE: Mach-10 Render Pipeline - 100% Procedural Blender Python Animation & Synthesized Audio"
+version: 3.0.0
+date-released: 2026-10-16
+url: "https://github.com/fokrulanthro16-eng/hyper-juice-mach10"
+repository-code: "https://github.com/fokrulanthro16-eng/hyper-juice-mach10"
+keywords:
+  - "blender"
+  - "procedural-generation"
+  - "bpy-api"
+  - "eevee-next"
+  - "audio-synthesis"
+  - "renderjuice"
+  - "cyberpunk"
+  - "computational-cinematics"
+license: MIT

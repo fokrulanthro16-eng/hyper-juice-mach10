@@ -1,0 +1,34 @@
+# ==============================================================================
+# HYPER-JUICE: Mach-10 Render Pipeline - Git Attributes Configuration
+# ==============================================================================
+
+# Auto detect text files and perform LF normalization on checkin
+* text=auto
+
+# Text files with explicit LF line endings
+*.py text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.cff text eol=lf
+
+# Windows Scripts with CRLF line endings
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Explicit Binary Deliverables (Never touch line endings or diff)
+*.blend binary
+*.mp4 binary
+*.gif binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.wav binary
+*.mp3 binary
+*.ico binary

@@ -1,0 +1,42 @@
+# ==============================================================================
+# HYPER-JUICE: Mach-10 Render Pipeline - Git Ignore Configuration
+# ==============================================================================
+
+# Blender Backup Files
+*.blend1
+*.blend2
+*.blend@
+
+# Python Bytecode & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Temporary Audio/Video Intermediate Build Artifacts
+temp_8k_segments/
+temp_vo/
+temp_edge/
+concat_list.txt
+
+# Master 8K Walkthrough Video (116 MB - Exceeds GitHub 100MB file limit)
+# Note: Full 8K UHD video is streamed via YouTube: https://youtu.be/1DEDpgj7cbs
+hyper_juice_8k_technical_walkthrough.mp4
+
+# Operating System Temporary Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE & Editor Workspaces
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
