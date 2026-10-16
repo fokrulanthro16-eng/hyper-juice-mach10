@@ -1,0 +1,31 @@
+# Files exceeding 100 MB or temporary build directories
+hyper_juice_8k_technical_walkthrough.mp4
+temp_8k_segments/
+temp_vo/
+temp_edge/
+concat_list.txt
+
+# Blender files
+*.blend
+*.blend1
+*.blend2
+
+# Audio masters not referenced by index.html
+master_walkthrough_audio.wav
+voiceover_narrator.wav
+
+# 8K Plates
+plates_8k/
+
+# Python scripts not loaded by web frontend
+render_8k_video.py
+render_wireframe_proof.py
+render_preview.py
+capture_5_hero_shots.py
+build_audio_mix.py
+generate_8k_plates.py
+generate_voiceover.py
+generate_procedural_audio.py
+
+# Git
+.git/
